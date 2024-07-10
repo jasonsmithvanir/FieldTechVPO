@@ -1,0 +1,53 @@
+const airtableApiKey = 'AT API Key';
+const airtableBaseId = 'tblO72Aw6qplOEAhR';
+const airtableTableName = 'VPO's';
+const airtableEndpoint = `https://api.airtable.com/v0/${airtableBaseId}/${airtableTableName}`;
+
+axios.defaults.headers.common['Authorization'] = `Bearer ${airtableApiKey}`;
+
+async function fetchRecords() {
+    try {
+        const response = await axios.get(airtableEndpoint);
+        const records = response.data.records;
+        displayRecords(records);
+    } catch (error) {
+        console.error('Error fetching records:', error);
+    }
+}
+
+function displayRecords(records) {
+    const recordsContainer = document.getElementById('records');
+    recordsContainer.innerHTML = '';
+
+    records.forEach(record => {
+        const recordElement = document.createElement('div');
+        const recordId = record.id;
+        const fieldA = record.fields['Job Name'];
+        const fieldB = record.fields['Field Tech Confirmed Complete'];
+        const checkboxValue = record.fields['Field Tech Confirmed Complete'];
+
+        recordElement.innerHTML = `
+            <div>
+                <span>${fieldA}</span>
+                <span>${fieldB}</span>
+                <input type="checkbox" ${checkboxValue ? 'checked' : ''} onclick="updateCheckbox('${recordId}', this.checked)">
+            </div>
+        `;
+        recordsContainer.appendChild(recordElement);
+    });
+}
+
+async function updateCheckbox(recordId, isChecked) {
+    try {
+        await axios.patch(`${airtableEndpoint}/${recordId}`, {
+            fields: {
+                'Field Tech Confirmed Complete': isChecked
+            }
+        });
+        console.log('Record updated successfully');
+    } catch (error) {
+        console.error('Error updating record:', error);
+    }
+}
+
+fetchRecords();

@@ -40,18 +40,19 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Function to create a table row for a record
     function createRecordRow(record) {
         const recordRow = document.createElement('tr');
+        const vanirOffice = record.fields['static Vanir Office'] || '';
         const jobName = record.fields['Job Name'] || '';
         const fieldTechnician = record.fields['static Field Technician'] || '';
-        const subcontractor = record.fields['static Subcontractor'] || '';
-        const vanirOffice = record.fields['static Vanir Office'] || '';
+       
         const fieldTechConfirmedComplete = record.fields['Field Tech Confirmed Job Complete'];
         const checkboxValue = fieldTechConfirmedComplete ? 'checked' : '';
 
         recordRow.innerHTML = `
-            <td>${jobName}</td>
+         <td>${vanirOffice}</td>   
+        <td>${jobName}</td>
             <td>${fieldTechnician}</td>
-            <td>${subcontractor}</td>
-            <td>${vanirOffice}</td>
+           
+           
             <td>
                 <label class="custom-checkbox">
                     <input type="checkbox" ${checkboxValue} data-record-id="${record.id}">

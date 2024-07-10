@@ -98,9 +98,17 @@ document.addEventListener("DOMContentLoaded", async function() {
         }
     }
 
+    // Function to scroll to the bottom of the table
+    function jumpToBottom() {
+        console.log('Jumping to bottom...');
+        const recordsContainer = document.getElementById('records');
+        recordsContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
     // Fetch records with unchecked checkboxes when the document is fully loaded
     fetchUncheckedRecords();
 
-    // Attach event listener to the submit button
+    // Attach event listeners
     document.getElementById('submitUpdates').addEventListener('click', submitUpdates);
+    document.getElementById('jumpToBottom').addEventListener('click', jumpToBottom);
 });

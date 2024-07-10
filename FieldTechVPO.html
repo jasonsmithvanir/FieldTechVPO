@@ -3,13 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Airtable Interaction</title>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="FieldTechVPO.js"></script>
+    <title>Airtable Records</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Airtable Interaction</h1>
-    <div id="records"></div>
-    <script src="script.js"></script>
+    <header>
+        <h1>VPO</h1>
+    </header>
+    <main>
+        <table id="recordsTable">
+            <thead>
+                <tr>
+                    <th>Job Name</th>
+                    <th>Field Tech Confirmed Complete</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="records">
+                <!-- Records will be dynamically inserted here -->
+            </tbody>
+        </table>
+        <button onclick="addNewRecordRow()">Add New Record</button>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="FieldTechVPO.js"></script>
 </body>
 </html>

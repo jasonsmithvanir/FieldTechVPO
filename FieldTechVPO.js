@@ -1,6 +1,6 @@
 const airtableApiKey = 'AT API Key';
 const airtableBaseId = 'tblO72Aw6qplOEAhR';
-const airtableTableName = 'VPO's';
+const airtableTableName = 'VPO';
 const airtableEndpoint = `https://api.airtable.com/v0/${airtableBaseId}/${airtableTableName}`;
 
 axios.defaults.headers.common['Authorization'] = `Bearer ${airtableApiKey}`;

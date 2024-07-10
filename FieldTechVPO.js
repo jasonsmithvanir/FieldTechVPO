@@ -10,20 +10,23 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Set default Axios headers for authorization
     axios.defaults.headers.common['Authorization'] = `Bearer ${airtableApiKey}`;
 
-    // Function to fetch records from Airtable
-    async function fetchRecords() {
+    // Function to fetch records from Airtable with unchecked checkboxes
+    async function fetchUncheckedRecords() {
         try {
-            const response = await axios.get(airtableEndpoint);
+            console.log('Fetching unchecked records from Airtable...');
+            const filterByFormula = 'NOT({Field Tech Confirmed Job Complete})';
+            const response = await axios.get(`${airtableEndpoint}?filterByFormula=${encodeURIComponent(filterByFormula)}`);
             const records = response.data.records;
-            console.log('Records fetched successfully:', records);
+            console.log('Unchecked records fetched successfully:', records);
             displayRecords(records);
         } catch (error) {
-            console.error('Error fetching records:', error);
+            console.error('Error fetching unchecked records:', error);
         }
     }
 
     // Function to display records in a table on the webpage
     function displayRecords(records) {
+        console.log('Displaying records...');
         const recordsContainer = document.getElementById('records');
         recordsContainer.innerHTML = ''; // Clear previous content
 
@@ -31,6 +34,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             const recordRow = createRecordRow(record);
             recordsContainer.appendChild(recordRow);
         });
+        console.log('Records displayed successfully.');
     }
 
     // Function to create a table row for a record
@@ -48,26 +52,55 @@ document.addEventListener("DOMContentLoaded", async function() {
             <td>${fieldTechnician}</td>
             <td>${subcontractor}</td>
             <td>${vanirOffice}</td>
-            <td><input type="checkbox" ${checkboxValue} onclick="updateCheckbox('${record.id}', this.checked)"></td>
+            <td>
+                <label class="custom-checkbox">
+                    <input type="checkbox" ${checkboxValue} data-record-id="${record.id}">
+                    <span class="checkmark"></span>
+                </label>
+            </td>
         `;
-        
+
+        console.log(`Created row for record ID ${record.id}:`, record);
         return recordRow;
     }
 
-    // Function to update a record in Airtable based on checkbox status
-    async function updateCheckbox(recordId, isChecked) {
-        try {
-            await axios.patch(`${airtableEndpoint}/${recordId}`, {
+    // Function to update records in Airtable based on checkbox statuses
+    async function submitUpdates() {
+        console.log('Submitting updates...');
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        const updates = [];
+
+        checkboxes.forEach(checkbox => {
+            const recordId = checkbox.getAttribute('data-record-id');
+            const isChecked = checkbox.checked;
+
+            updates.push({
+                id: recordId,
                 fields: {
                     'Field Tech Confirmed Job Complete': isChecked
                 }
             });
-            console.log(`Record ${recordId} updated successfully`);
+
+            console.log(`Prepared update for record ID ${recordId}: ${isChecked}`);
+        });
+
+        try {
+            const updatePromises = updates.map(update => 
+                axios.patch(`${airtableEndpoint}/${update.id}`, {
+                    fields: update.fields
+                })
+            );
+
+            await Promise.all(updatePromises);
+            console.log('Records updated successfully');
         } catch (error) {
-            console.error(`Error updating record ${recordId}:`, error);
+            console.error('Error updating records:', error);
         }
     }
 
-    // Fetch records when the document is fully loaded
-    fetchRecords();
+    // Fetch records with unchecked checkboxes when the document is fully loaded
+    fetchUncheckedRecords();
+
+    // Attach event listener to the submit button
+    document.getElementById('submitUpdates').addEventListener('click', submitUpdates);
 });

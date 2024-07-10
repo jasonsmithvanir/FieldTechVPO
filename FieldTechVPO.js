@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                     <th>Vanir Office</th>
                     <th>Job Name</th>
                     <th>Field Technician</th>
-                    <th>Confirmed Complete</th>
+                    <th>Field Tech Confirmed Job Complete</th>
                 </tr>
             </thead>
             <tbody>
@@ -57,6 +57,9 @@ document.addEventListener("DOMContentLoaded", async function() {
             const recordRow = createRecordRow(record);
             tableBody.appendChild(recordRow);
         });
+
+        // Log the number of records
+        console.log(`Total number of entries displayed: ${records.length}`);
 
         console.log('Records displayed successfully.');
     }

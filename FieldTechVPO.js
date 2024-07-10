@@ -30,10 +30,34 @@ document.addEventListener("DOMContentLoaded", async function() {
         const recordsContainer = document.getElementById('records');
         recordsContainer.innerHTML = ''; // Clear previous content
 
+        // Sort records by Vanir Office alphabetically
+        records.sort((a, b) => {
+            const officeA = a.fields['static Vanir Office'] || '';
+            const officeB = b.fields['static Vanir Office'] || '';
+            return officeA.localeCompare(officeB);
+        });
+
+        // Create and append table headers
+        const tableHeader = `
+            <thead>
+                <tr>
+                    <th>Vanir Office</th>
+                    <th>Job Name</th>
+                    <th>Field Technician</th>
+                    <th>Confirmed Complete</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        `;
+        recordsContainer.innerHTML = tableHeader;
+        const tableBody = recordsContainer.querySelector('tbody');
+
         records.forEach(record => {
             const recordRow = createRecordRow(record);
-            recordsContainer.appendChild(recordRow);
+            tableBody.appendChild(recordRow);
         });
+
         console.log('Records displayed successfully.');
     }
 
@@ -43,16 +67,13 @@ document.addEventListener("DOMContentLoaded", async function() {
         const vanirOffice = record.fields['static Vanir Office'] || '';
         const jobName = record.fields['Job Name'] || '';
         const fieldTechnician = record.fields['static Field Technician'] || '';
-       
         const fieldTechConfirmedComplete = record.fields['Field Tech Confirmed Job Complete'];
         const checkboxValue = fieldTechConfirmedComplete ? 'checked' : '';
 
         recordRow.innerHTML = `
-         <td>${vanirOffice}</td>   
-        <td>${jobName}</td>
+            <td>${vanirOffice}</td>   
+            <td>${jobName}</td>
             <td>${fieldTechnician}</td>
-           
-           
             <td>
                 <label class="custom-checkbox">
                     <input type="checkbox" ${checkboxValue} data-record-id="${record.id}">
@@ -94,6 +115,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 
             await Promise.all(updatePromises);
             console.log('Records updated successfully');
+
+            // Reload the page to fetch and display updated records
+            window.location.reload();
         } catch (error) {
             console.error('Error updating records:', error);
         }

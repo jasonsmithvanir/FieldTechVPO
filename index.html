@@ -7,17 +7,27 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h2>Open VPOs Awaiting Field Tech</h2>
-    <div>
-        <input type="text" id="searchBar" placeholder="Search...">
-        <button id="searchButton">Search</button>
+    <h2 class="hideable">Open VPOs Awaiting Field Tech</h2>
+    <div class="search-container hideable">
+        <select id="locationDropdown">
+            <option value="">Select Location</option>
+            <option value="Charleston">Charleston</option>
+            <option value="Charlotte">Charlotte</option>
+            <option value="Columbia">Columbia</option>
+            <option value="Greensboro">Greensboro</option>
+            <option value="Greenville,SC">Greenville,SC</option>
+            <option value="Myrtle Beach">Myrtle Beach</option>
+            <option value="Raleigh">Raleigh</option>
+            <option value="Wilmington">Wilmington</option>
+        </select>
     </div>
-    <table id="records">
-        <!-- Table rows will be inserted here by JavaScript -->
-    </table>
-    <button id="submitUpdates">Submit Updates</button>
-    <button id="jumpToBottom">Jump to Bottom</button>
-    
+    <div class="table-container">
+        <table id="records">
+            <!-- Table rows will be inserted here by JavaScript -->
+        </table>
+    </div>
+    <button id="submitUpdates" class="sticky-button hideable">Submit Updates</button>
+    <div id="loadingMessage">Fetching data, please wait...</div>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="FieldTechVPO.js"></script>
 </body>

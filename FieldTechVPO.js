@@ -1,19 +1,34 @@
 document.addEventListener("DOMContentLoaded", async function () {
     console.log('DOM fully loaded and parsed');
 
-    // Define Airtable API credentials and endpoint
     const airtableApiKey = 'pata9Iv7DANqtJrgO.b308b33cd0f323601f3fb580aac0d333ca1629dd26c5ebe2e2b9f18143ccaa8e';
     const airtableBaseId = 'appQDdkj6ydqUaUkE';
     const airtableTableName = 'tblO72Aw6qplOEAhR';
     const airtableEndpoint = `https://api.airtable.com/v0/${airtableBaseId}/${airtableTableName}`;
 
-    // Set default Axios headers for authorization
     axios.defaults.headers.common['Authorization'] = `Bearer ${airtableApiKey}`;
 
     let allRecords = [];
 
-    // Function to fetch all records from Airtable handling pagination
+    // Clear updates on page load
+    localStorage.removeItem('updates');
+
+    function toggleLoading(show) {
+        const loadingMessage = document.getElementById('loadingMessage');
+        const hideableElements = document.querySelectorAll('.hideable');
+        if (show) {
+            console.log('Showing loading message and hiding other elements.');
+            loadingMessage.style.display = 'block';
+            hideableElements.forEach(el => el.classList.add('hidden'));
+        } else {
+            console.log('Hiding loading message and showing other elements.');
+            loadingMessage.style.display = 'none';
+            hideableElements.forEach(el => el.classList.remove('hidden'));
+        }
+    }
+
     async function fetchAllRecords() {
+        console.log('Fetching all records...');
         let records = [];
         let offset = null;
 
@@ -29,13 +44,14 @@ document.addEventListener("DOMContentLoaded", async function () {
             offset = data.offset;
         } while (offset);
 
+        console.log('All records fetched:', records);
         return records;
     }
 
-    // Function to fetch records from Airtable with unchecked checkboxes
     async function fetchUncheckedRecords() {
         try {
             console.log('Fetching unchecked records from Airtable...');
+            toggleLoading(true);
             const filterByFormula = 'NOT({Field Tech Confirmed Job Complete})';
             let records = [];
             let offset = '';
@@ -51,10 +67,11 @@ document.addEventListener("DOMContentLoaded", async function () {
             displayRecords(records);
         } catch (error) {
             console.error('Error fetching unchecked records:', error);
+        } finally {
+            toggleLoading(false);
         }
     }
 
-    // Function to display records in a table on the webpage
     function displayRecords(records) {
         console.log('Displaying records...');
         const recordsContainer = document.getElementById('records');
@@ -62,17 +79,27 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (records.length === 0) {
             recordsContainer.innerText = 'No records found.';
+            console.log('No records found.');
             return;
         }
 
-        // Sort records by Vanir Office alphabetically
         records.sort((a, b) => {
-            const officeA = a.fields['static Vanir Office'] || '';
-            const officeB = b.fields['static Vanir Office'] || '';
-            return officeA.localeCompare(officeB);
+            const officeA = (a.fields['static Vanir Office'] || '').replace(/"/g, '');
+            const officeB = (b.fields['static Vanir Office'] || '').replace(/"/g, '');
+            
+            // Special case handling for "Greenville,SC"
+            if (officeA === 'Greenville,SC' && officeB === 'Greensboro') return 1;
+            if (officeB === 'Greenville,SC' && officeA === 'Greensboro') return -1;
+
+            const officeComparison = officeA.localeCompare(officeB);
+            if (officeComparison !== 0) return officeComparison;
+
+            // Secondary sort by Field Technician
+            const fieldTechA = (a.fields['static Field Technician'] || '').replace(/"/g, '');
+            const fieldTechB = (b.fields['static Field Technician'] || '').replace(/"/g, '');
+            return fieldTechA.localeCompare(fieldTechB);
         });
 
-        // Create and append table headers
         const tableHeader = `
             <thead>
                 <tr>
@@ -93,18 +120,15 @@ document.addEventListener("DOMContentLoaded", async function () {
             tableBody.appendChild(recordRow);
         });
 
-        // Log the number of records
         console.log(`Total number of entries displayed: ${records.length}`);
-
         console.log('Records displayed successfully.');
     }
 
-    // Function to create a table row for a record
     function createRecordRow(record) {
         const recordRow = document.createElement('tr');
-        const vanirOffice = record.fields['static Vanir Office'] || '';
-        const jobName = record.fields['Job Name'] || '';
-        const fieldTechnician = record.fields['static Field Technician'] || '';
+        const vanirOffice = (record.fields['static Vanir Office'] || '').replace(/"/g, '');
+        const jobName = (record.fields['Job Name'] || '').replace(/"/g, '');
+        const fieldTechnician = (record.fields['static Field Technician'] || '').replace(/"/g, '');
         const fieldTechConfirmedComplete = record.fields['Field Tech Confirmed Job Complete'];
         const checkboxValue = fieldTechConfirmedComplete ? 'checked' : '';
 
@@ -126,7 +150,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         return recordRow;
     }
 
-    // Function to handle checkbox change and store updates in local storage
     function handleCheckboxChange(event) {
         const checkbox = event.target;
         const recordId = checkbox.getAttribute('data-record-id');
@@ -135,9 +158,17 @@ document.addEventListener("DOMContentLoaded", async function () {
         let updates = JSON.parse(localStorage.getItem('updates')) || {};
 
         if (isChecked) {
+            if (Object.keys(updates).length >= 4) {
+                alert('You can only select up to 4 checkmarks at a time before submitting.');
+                checkbox.checked = false;
+                return;
+            }
             updates[recordId] = true;
         } else {
             delete updates[recordId];
+            if (Object.keys(updates).length === 0) {
+                localStorage.removeItem('updates');
+            }
         }
 
         localStorage.setItem('updates', JSON.stringify(updates));
@@ -146,9 +177,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.log('Current updates:', updates);
     }
 
-    // Function to update records in Airtable based on local storage
     async function submitUpdates() {
-        console.log('Submitting updates...');
+        console.log('Submit button clicked.');
+        document.getElementById('loadingMessage').innerText = 'Submitting updates, please wait...';
+        document.getElementById('loadingMessage').style.display = 'block';
         let updates = JSON.parse(localStorage.getItem('updates')) || {};
         let updateArray = Object.keys(updates).map(id => ({
             id: id,
@@ -160,6 +192,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (updateArray.length === 0) {
             console.log('No changes to submit.');
             alert('No changes to submit.');
+            document.getElementById('loadingMessage').style.display = 'none';
             return;
         }
 
@@ -177,7 +210,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 } catch (error) {
                     if (error.response && error.response.status === 429) {
                         attempt++;
-                        const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff
+                        const waitTime = Math.pow(2, attempt) * 1000;
                         console.log(`Rate limit exceeded. Retrying in ${waitTime / 1000} seconds...`);
                         await delay(waitTime);
                     } else {
@@ -205,52 +238,53 @@ document.addEventListener("DOMContentLoaded", async function () {
             console.log('Records updated successfully');
             alert('Records updated successfully.');
 
-            // Clear local storage after successful update
             localStorage.removeItem('updates');
-
-            // Reload the page to fetch and display updated records
             window.location.reload();
         } catch (error) {
             console.error('Error updating records:', error);
             alert('Error updating records. Check the console for more details.');
+        } finally {
+            document.getElementById('loadingMessage').style.display = 'none';
         }
     }
 
-    // Function to filter records based on search input when search button is clicked
     function filterRecords() {
-        const searchTerm = document.getElementById('searchBar').value.toLowerCase();
-        const filteredRecords = allRecords.filter(record => {
-            const vanirOffice = (record.fields['static Vanir Office'] || '').toLowerCase();
-            const jobName = (record.fields['Job Name'] || '').toLowerCase();
-            const fieldTechnician = (record.fields['static Field Technician'] || '').toLowerCase();
-            return vanirOffice.includes(searchTerm) || jobName.includes(searchTerm) || fieldTechnician.includes(searchTerm);
-        });
-        displayRecords(filteredRecords);
+        const selectedLocation = document.getElementById('locationDropdown').value;
+        console.log('Filtering records with selected location:', selectedLocation);
+        if (selectedLocation === '') {
+            // Show all records if no location is selected
+            displayRecords(allRecords);
+        } else {
+            const filteredRecords = allRecords.filter(record => {
+                const vanirOffice = (record.fields['static Vanir Office'] || '').replace(/"/g, '');
+                return vanirOffice === selectedLocation;
+            });
+            console.log('Filtered records:', filteredRecords);
+            displayRecords(filteredRecords);
+        }
     }
 
-    // Function to scroll to the bottom of the table
     function jumpToBottom() {
         console.log('Jumping to bottom...');
         const recordsContainer = document.getElementById('records');
         recordsContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
 
-    // Fetch all records when the document is fully loaded
     fetchAllRecords()
         .then(records => {
             console.log('Total records fetched:', records.length);
             console.log(records);
-            // Add your logic here to handle the fetched records
         })
         .catch(error => {
             console.error('Error fetching records:', error);
         });
 
-    // Fetch records with unchecked checkboxes when the document is fully loaded
     fetchUncheckedRecords();
 
-    // Attach event listeners
     document.getElementById('submitUpdates').addEventListener('click', submitUpdates);
     document.getElementById('jumpToBottom').addEventListener('click', jumpToBottom);
-    document.getElementById('searchButton').addEventListener('click', filterRecords);
+    document.getElementById('locationDropdown').addEventListener('change', function() {
+        console.log('Location dropdown changed.');
+        filterRecords();
+    });
 });

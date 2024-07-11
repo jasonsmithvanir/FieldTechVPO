@@ -23,7 +23,7 @@ h2 {
     display: flex;
     gap: 10px;
     width: 70%;
-    justify-content: center; 
+    justify-content: center;
     position: sticky;
 }
 
@@ -92,13 +92,6 @@ tr:nth-child(odd) {
     background-color: #ffffff;
 }
 
-.button-container {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-      position: sticky;
-}
-
 .custom-checkbox {
     position: relative;
     display: inline-block;
@@ -123,7 +116,7 @@ tr:nth-child(odd) {
     transition: all 0.3s ease-in-out;
 }
 
-custom-checkbox input[type="checkbox"]:checked + .checkmark {
+.custom-checkbox input[type="checkbox"]:checked + .checkmark {
     background-color: #b42025;
 }
 
@@ -149,18 +142,34 @@ custom-checkbox input[type="checkbox"]:checked + .checkmark {
 
 .sticky-button {
     position: fixed;
-    bottom: 10px; /* Adjust this value to place the button higher or lower */
-    right: 10px;  /* Adjust this value to place the button more to the left or right */
-    z-index: 1000; /* Ensure the button stays on top of other elements */
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
     padding: 10px 20px;
     background-color: #007bff; /* Button color */
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: add a shadow for better visibility */
-  }
-  .sticky-button:hover {
-    background-color: #0056b3; /* Darker shade for hover effect */
-  }
-  
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-button:hover {
+    background-color: #0056b3;
+}
+
+#loadingMessage {
+    display: none;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+.table-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

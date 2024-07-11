@@ -90,7 +90,7 @@ tr:nth-child(odd) {
 }
 
 .custom-checkbox input[type="checkbox"]:checked + .checkmark {
-    background-color: #007bff;
+    background-color: #b42025;
 }
 
 .custom-checkbox .checkmark:after {

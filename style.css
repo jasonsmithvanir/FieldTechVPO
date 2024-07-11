@@ -24,7 +24,7 @@ table {
 }
 
 th, td {
-    padding: 8px; /* Reduce padding to make columns narrower */
+    padding: 3px; /* Reduce padding to make columns narrower */
     border: 1px solid #ddd;
     text-align: center;
     white-space: nowrap;

@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
+    background-color: #c7c7cb;
     margin: 0;
     padding: 0;
     display: flex;
@@ -31,7 +31,7 @@ th, td {
 }
 
 th {
-    background-color: #007bff;
+    background-color: #24346c;
     color: #fff;
     position: sticky;
     top: 0;
@@ -49,7 +49,7 @@ tr:nth-child(odd) {
 #submitUpdates, #jumpToBottom {
     margin-top: 20px;
     padding: 10px 20px;
-    background-color: #007bff;
+    background-color: #24346c;
     color: white;
     border: none;
     cursor: pointer;

@@ -175,6 +175,10 @@ document.addEventListener("DOMContentLoaded", async function() {
     fetchUncheckedRecords();
 
     // Attach event listeners
-    document.getElementById('submitUpdates').addEventListener('click', submitUpdates);
+    document.getElementById('submitUpdates').addEventListener('click', function() {
+        submitUpdates();
+        // Refresh the page after submitting updates
+        window.location.reload();
+    });
     document.getElementById('jumpToBottom').addEventListener('click', jumpToBottom);
 });

@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Set default Axios headers for authorization
     axios.defaults.headers.common['Authorization'] = `Bearer ${airtableApiKey}`;
 
+    let allRecords = [];
+
     // Function to fetch all records from Airtable handling pagination
     async function fetchAllRecords() {
         let records = [];
@@ -45,6 +47,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             } while (offset);
 
             console.log('Unchecked records fetched successfully:', records);
+            allRecords = records;
             displayRecords(records);
         } catch (error) {
             console.error('Error fetching unchecked records:', error);
@@ -56,6 +59,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.log('Displaying records...');
         const recordsContainer = document.getElementById('records');
         recordsContainer.innerHTML = ''; // Clear previous content
+
+        if (records.length === 0) {
+            recordsContainer.innerText = 'No records found.';
+            return;
+        }
 
         // Sort records by Vanir Office alphabetically
         records.sort((a, b) => {
@@ -208,6 +216,18 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
+    // Function to filter records based on search input when search button is clicked
+    function filterRecords() {
+        const searchTerm = document.getElementById('searchBar').value.toLowerCase();
+        const filteredRecords = allRecords.filter(record => {
+            const vanirOffice = (record.fields['static Vanir Office'] || '').toLowerCase();
+            const jobName = (record.fields['Job Name'] || '').toLowerCase();
+            const fieldTechnician = (record.fields['static Field Technician'] || '').toLowerCase();
+            return vanirOffice.includes(searchTerm) || jobName.includes(searchTerm) || fieldTechnician.includes(searchTerm);
+        });
+        displayRecords(filteredRecords);
+    }
+
     // Function to scroll to the bottom of the table
     function jumpToBottom() {
         console.log('Jumping to bottom...');
@@ -232,4 +252,5 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Attach event listeners
     document.getElementById('submitUpdates').addEventListener('click', submitUpdates);
     document.getElementById('jumpToBottom').addEventListener('click', jumpToBottom);
+    document.getElementById('searchButton').addEventListener('click', filterRecords);
 });

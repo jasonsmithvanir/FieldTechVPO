@@ -10,13 +10,40 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Set default Axios headers for authorization
     axios.defaults.headers.common['Authorization'] = `Bearer ${airtableApiKey}`;
 
+    // Function to fetch all records from Airtable handling pagination
+    async function fetchAllRecords() {
+        let records = [];
+        let offset = null;
+
+        do {
+            const response = await fetch(`${airtableEndpoint}?${new URLSearchParams({ offset })}`, {
+                headers: {
+                    Authorization: `Bearer ${airtableApiKey}`
+                }
+            });
+
+            const data = await response.json();
+            records = records.concat(data.records);
+            offset = data.offset;
+        } while (offset);
+
+        return records;
+    }
+
     // Function to fetch records from Airtable with unchecked checkboxes
     async function fetchUncheckedRecords() {
         try {
             console.log('Fetching unchecked records from Airtable...');
             const filterByFormula = 'NOT({Field Tech Confirmed Job Complete})';
-            const response = await axios.get(`${airtableEndpoint}?filterByFormula=${encodeURIComponent(filterByFormula)}`);
-            const records = response.data.records;
+            let records = [];
+            let offset = '';
+
+            do {
+                const response = await axios.get(`${airtableEndpoint}?filterByFormula=${encodeURIComponent(filterByFormula)}&offset=${offset}`);
+                records = records.concat(response.data.records);
+                offset = response.data.offset || '';
+            } while (offset);
+
             console.log('Unchecked records fetched successfully:', records);
             displayRecords(records);
         } catch (error) {
@@ -44,7 +71,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                     <th>Vanir Office</th>
                     <th>Job Name</th>
                     <th>Field Technician</th>
-                    <th>Field Tech Confirmed Job Complete</th>
+                    <th>Confirmed Complete</th>
                 </tr>
             </thead>
             <tbody>
@@ -132,6 +159,17 @@ document.addEventListener("DOMContentLoaded", async function() {
         const recordsContainer = document.getElementById('records');
         recordsContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
+
+    // Fetch all records when the document is fully loaded
+    fetchAllRecords()
+        .then(records => {
+            console.log('Total records fetched:', records.length);
+            console.log(records);
+            // Add your logic here to handle the fetched records
+        })
+        .catch(error => {
+            console.error('Error fetching records:', error);
+        });
 
     // Fetch records with unchecked checkboxes when the document is fully loaded
     fetchUncheckedRecords();

@@ -9,22 +9,67 @@ body {
     justify-content: center;
     min-height: 100vh;
     text-align: center;
+    color: #333;
 }
 
 h2 {
     margin-top: 30px;
+    color: #24346c;
+    font-size: 24px;
+}
+
+.search-container {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    width: 70%;
+    justify-content: center; 
+    position: sticky;
+}
+
+input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 250px;
+    transition: all 0.3s ease-in-out;
+}
+
+input[type="text"]:focus {
+    border-color: #24346c;
+    box-shadow: 0 0 5px rgba(36, 52, 108, 0.5);
+    width: 50%;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #24346c;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+}
+
+button:hover {
+    background-color: #1d2f5c;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
 }
 
 table {
     border-collapse: collapse;
-    width: 60%;
+    width: auto;
     margin-top: 20px;
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 th, td {
-    padding: 2px; /* Reduce padding to make columns narrower */
+    padding: 10px;
     border: 1px solid #ddd;
     text-align: center;
     white-space: nowrap;
@@ -36,36 +81,24 @@ th {
     position: sticky;
     top: 0;
     z-index: 1;
+    font-size: 18px;
 }
 
 tr:nth-child(even) {
-    background-color: whitesmoke;
+    background-color: #f9f9f9;
 }
 
 tr:nth-child(odd) {
     background-color: #ffffff;
 }
 
-#submitUpdates, #jumpToBottom {
+.button-container {
     margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #24346c;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 16px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    bottom: 0;
-    z-index: 1;
+    display: flex;
+    gap: 10px;
+      position: sticky;
 }
 
-#submitUpdates:hover, #jumpToBottom:hover {
-    background-color: #24346c;
-}
-
-/* Custom checkbox styles */
 .custom-checkbox {
     position: relative;
     display: inline-block;
@@ -87,9 +120,10 @@ tr:nth-child(odd) {
     width: 24px;
     background-color: #ccc;
     border-radius: 4px;
+    transition: all 0.3s ease-in-out;
 }
 
-.custom-checkbox input[type="checkbox"]:checked + .checkmark {
+custom-checkbox input[type="checkbox"]:checked + .checkmark {
     background-color: #b42025;
 }
 
@@ -112,3 +146,21 @@ tr:nth-child(odd) {
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
 }
+
+.sticky-button {
+    position: fixed;
+    bottom: 10px; /* Adjust this value to place the button higher or lower */
+    right: 10px;  /* Adjust this value to place the button more to the left or right */
+    z-index: 1000; /* Ensure the button stays on top of other elements */
+    padding: 10px 20px;
+    background-color: #007bff; /* Button color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: add a shadow for better visibility */
+  }
+  .sticky-button:hover {
+    background-color: #0056b3; /* Darker shade for hover effect */
+  }
+  

@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", async function() {
+document.addEventListener("DOMContentLoaded", async function () {
     console.log('DOM fully loaded and parsed');
 
     // Define Airtable API credentials and endpoint
@@ -7,11 +7,27 @@ document.addEventListener("DOMContentLoaded", async function() {
     const airtableTableName = 'tblO72Aw6qplOEAhR';
     const airtableEndpoint = `https://api.airtable.com/v0/${airtableBaseId}/${airtableTableName}`;
 
+    // Set default Axios headers for authorization
     axios.defaults.headers.common['Authorization'] = `Bearer ${airtableApiKey}`;
 
-    // Helper function to sleep for a specified duration
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+    // Function to fetch all records from Airtable handling pagination
+    async function fetchAllRecords() {
+        let records = [];
+        let offset = null;
+
+        do {
+            const response = await fetch(`${airtableEndpoint}?${new URLSearchParams({ offset })}`, {
+                headers: {
+                    Authorization: `Bearer ${airtableApiKey}`
+                }
+            });
+
+            const data = await response.json();
+            records = records.concat(data.records);
+            offset = data.offset;
+        } while (offset);
+
+        return records;
     }
 
     // Function to fetch records from Airtable with unchecked checkboxes
@@ -19,13 +35,19 @@ document.addEventListener("DOMContentLoaded", async function() {
         try {
             console.log('Fetching unchecked records from Airtable...');
             const filterByFormula = 'NOT({Field Tech Confirmed Job Complete})';
-            const response = await axios.get(`${airtableEndpoint}?filterByFormula=${encodeURIComponent(filterByFormula)}`);
-            const records = response.data.records;
+            let records = [];
+            let offset = '';
+
+            do {
+                const response = await axios.get(`${airtableEndpoint}?filterByFormula=${encodeURIComponent(filterByFormula)}&offset=${offset}`);
+                records = records.concat(response.data.records);
+                offset = response.data.offset || '';
+            } while (offset);
+
             console.log('Unchecked records fetched successfully:', records);
             displayRecords(records);
         } catch (error) {
             console.error('Error fetching unchecked records:', error);
-            alert('Error fetching unchecked records. Check the console for more details.');
         }
     }
 
@@ -63,6 +85,9 @@ document.addEventListener("DOMContentLoaded", async function() {
             tableBody.appendChild(recordRow);
         });
 
+        // Log the number of records
+        console.log(`Total number of entries displayed: ${records.length}`);
+
         console.log('Records displayed successfully.');
     }
 
@@ -76,56 +101,107 @@ document.addEventListener("DOMContentLoaded", async function() {
         const checkboxValue = fieldTechConfirmedComplete ? 'checked' : '';
 
         recordRow.innerHTML = `
-            <td>${vanirOffice}</td>
+            <td>${vanirOffice}</td>   
             <td>${jobName}</td>
             <td>${fieldTechnician}</td>
             <td>
                 <label class="custom-checkbox">
-                    <input type="checkbox" ${checkboxValue} data-record-id="${record.id}">
+                    <input type="checkbox" ${checkboxValue} data-record-id="${record.id}" data-initial-checked="${checkboxValue}">
                     <span class="checkmark"></span>
                 </label>
             </td>
         `;
 
+        recordRow.querySelector('input[type="checkbox"]').addEventListener('change', handleCheckboxChange);
+
         console.log(`Created row for record ID ${record.id}:`, record);
         return recordRow;
     }
 
-    // Function to update records in Airtable based on checkbox statuses
+    // Function to handle checkbox change and store updates in local storage
+    function handleCheckboxChange(event) {
+        const checkbox = event.target;
+        const recordId = checkbox.getAttribute('data-record-id');
+        const isChecked = checkbox.checked;
+
+        let updates = JSON.parse(localStorage.getItem('updates')) || {};
+
+        if (isChecked) {
+            updates[recordId] = true;
+        } else {
+            delete updates[recordId];
+        }
+
+        localStorage.setItem('updates', JSON.stringify(updates));
+
+        console.log(`Checkbox changed for record ID ${recordId}: ${isChecked}`);
+        console.log('Current updates:', updates);
+    }
+
+    // Function to update records in Airtable based on local storage
     async function submitUpdates() {
         console.log('Submitting updates...');
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-        const updates = [];
-
-        checkboxes.forEach(checkbox => {
-            const recordId = checkbox.getAttribute('data-record-id');
-            const isChecked = checkbox.checked;
-
-            if (checkbox.dataset.initialChecked !== String(isChecked)) {
-                updates.push({
-                    id: recordId,
-                    fields: {
-                        'Field Tech Confirmed Job Complete': isChecked
-                    }
-                });
+        let updates = JSON.parse(localStorage.getItem('updates')) || {};
+        let updateArray = Object.keys(updates).map(id => ({
+            id: id,
+            fields: {
+                'Field Tech Confirmed Job Complete': updates[id]
             }
+        }));
 
-            console.log(`Prepared update for record ID ${recordId}: ${isChecked}`);
-        });
-
-        if (updates.length === 0) {
+        if (updateArray.length === 0) {
             console.log('No changes to submit.');
             alert('No changes to submit.');
             return;
         }
 
+        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+        async function patchWithRetry(url, data, retries = 5) {
+            let attempt = 0;
+            let success = false;
+            let response = null;
+
+            while (attempt < retries && !success) {
+                try {
+                    response = await axios.patch(url, data);
+                    success = true;
+                } catch (error) {
+                    if (error.response && error.response.status === 429) {
+                        attempt++;
+                        const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff
+                        console.log(`Rate limit exceeded. Retrying in ${waitTime / 1000} seconds...`);
+                        await delay(waitTime);
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+
+            if (!success) {
+                throw new Error('Max retries reached. Failed to patch data.');
+            }
+
+            return response;
+        }
+
         try {
-            const response = await axios.patch(`${airtableEndpoint}`, {
-                records: updates
-            });
-            console.log('Records updated successfully:', response.data);
+            const updatePromises = updateArray.map(update =>
+                patchWithRetry(`${airtableEndpoint}/${update.id}`, {
+                    fields: update.fields
+                })
+            );
+
+            console.log('Submitting updates to Airtable...', updatePromises);
+            await Promise.all(updatePromises);
+            console.log('Records updated successfully');
             alert('Records updated successfully.');
-            fetchUncheckedRecords(); // Refresh the records after update
+
+            // Clear local storage after successful update
+            localStorage.removeItem('updates');
+
+            // Reload the page to fetch and display updated records
+            window.location.reload();
         } catch (error) {
             console.error('Error updating records:', error);
             alert('Error updating records. Check the console for more details.');
@@ -139,12 +215,21 @@ document.addEventListener("DOMContentLoaded", async function() {
         recordsContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
 
+    // Fetch all records when the document is fully loaded
+    fetchAllRecords()
+        .then(records => {
+            console.log('Total records fetched:', records.length);
+            console.log(records);
+            // Add your logic here to handle the fetched records
+        })
+        .catch(error => {
+            console.error('Error fetching records:', error);
+        });
+
     // Fetch records with unchecked checkboxes when the document is fully loaded
     fetchUncheckedRecords();
 
     // Attach event listeners
-    document.getElementById('submitUpdates').addEventListener('click', function() {
-        submitUpdates();
-    });
+    document.getElementById('submitUpdates').addEventListener('click', submitUpdates);
     document.getElementById('jumpToBottom').addEventListener('click', jumpToBottom);
 });

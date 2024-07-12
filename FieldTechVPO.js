@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     function showLoadingMessage() {
-        document.getElementById('loadingMessage').innerText = 'Data is being fetched...';
+        document.getElementById('loadingMessage').innerText = 'Open VPOs are being loaded...';
         document.getElementById('loadingMessage').style.display = 'block';
         document.getElementById('searchButton').classList.add('hidden');
         document.getElementById('submitUpdates').classList.add('hidden');

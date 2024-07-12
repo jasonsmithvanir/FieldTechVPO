@@ -81,7 +81,9 @@ th {
     position: sticky;
     top: 0;
     z-index: 1;
-    font-size: 18px;
+    font-size: 22px;
+    padding: 20px 10px; 
+    font-weight: bold;
 }
 
 tr:nth-child(even) {

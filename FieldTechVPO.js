@@ -58,6 +58,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.getElementById('loadingMessage').style.display = 'block';
         document.getElementById('searchButton').classList.add('hidden');
         document.getElementById('submitUpdates').classList.add('hidden');
+        document.getElementById('searchBar').classList.add('hidden');
+        document.getElementById('searchBarTitle').classList.add('hidden');
     }
 
     function hideLoadingMessage() {
@@ -78,20 +80,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             return;
         }
 
-        records.sort((a, b) => {
-            const officeA = a.fields['static Vanir Office'] || '';
-            const officeB = b.fields['static Vanir Office'] || '';
-            const techA = a.fields['static Field Technician'] || '';
-            const techB = b.fields['static Field Technician'] || '';
-
-            if (officeA === 'Greensboro' && officeB === 'Greenville,SC') return -1;
-            if (officeA === 'Greenville,SC' && officeB === 'Greensboro') return 1;
-
-            const primarySort = officeA.localeCompare(officeB);
-            if (primarySort !== 0) return primarySort;
-
-            return techA.localeCompare(techB);
-        });
+        records = sortRecordsWithSpecialCondition(records);
 
         const tableHeader = `
             <thead>
@@ -114,6 +103,23 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
 
         console.log(`Total number of entries displayed: ${records.length}`);
+    }
+
+    function sortRecordsWithSpecialCondition(records) {
+        return records.sort((a, b) => {
+            const officeA = a.fields['static Vanir Office'] || '';
+            const officeB = b.fields['static Vanir Office'] || '';
+            const techA = a.fields['static Field Technician'] || '';
+            const techB = b.fields['static Field Technician'] || '';
+
+            if (officeA === 'Greensboro' && officeB === 'Greenville, SC') return -1;
+            if (officeA === 'Greenville, SC' && officeB === 'Greensboro') return 1;
+
+            const primarySort = officeA.localeCompare(officeB);
+            if (primarySort !== 0) return primarySort;
+
+            return techA.localeCompare(techB);
+        });
     }
 
     function createRecordRow(record) {
@@ -242,7 +248,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         displayRecords(filteredRecords);
     }
 
- 
+    function jumpToBottom() {
+        console.log('Jumping to bottom...');
+        const recordsContainer = document.getElementById('records');
+        recordsContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
 
     fetchAllRecords()
         .then(records => {

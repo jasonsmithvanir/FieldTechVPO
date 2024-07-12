@@ -7,17 +7,17 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h2>Open VPOs Awaiting Field Tech</h2>
+    <h2 id="searchBarTitle" class="hidden">Open VPOs Awaiting Field Tech</h2>
     <div>
-        <input type="text" id="searchBar" placeholder="Search...">
-        <button id="searchButton">Search</button>
+        <input type="text" id="searchBar" class="hidden" placeholder="Search...">
+        <button id="searchButton" class="hidden">Search</button>
     </div>
+    <div id="loadingMessage">Data is being fetched...</div>
     <table id="records">
         <!-- Table rows will be inserted here by JavaScript -->
     </table>
-    <button id="submitUpdates">Submit Updates</button>
-    <button id="jumpToBottom">Jump to Bottom</button>
-    
+    <button id="submitUpdates" class="sticky-button hidden">Submit Updates</button>
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="FieldTechVPO.js"></script>
 </body>

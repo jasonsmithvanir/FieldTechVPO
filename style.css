@@ -146,7 +146,6 @@ tr:nth-child(odd) {
     position: fixed;
     bottom: 10px;
     left: 50%;
-    transform: translateX(-50%);
     padding: 10px 20px;
     background-color: #007bff; /* Button color */
     color: white;

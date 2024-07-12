@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     function showLoadingMessage() {
-        document.getElementById('loadingMessage').innerText = 'Open VPOs are being loaded...';
+        document.getElementById('loadingMessage').innerText = 'Data is being fetched...';
         document.getElementById('loadingMessage').style.display = 'block';
         document.getElementById('searchButton').classList.add('hidden');
         document.getElementById('submitUpdates').classList.add('hidden');
@@ -122,16 +122,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
-    function processOfficeName(officeName) {
-        if (officeName) {
-            return officeName.replace(', SC', '');
-        }
-        return officeName;
-    }
-
     function createRecordRow(record) {
         const recordRow = document.createElement('tr');
-        const vanirOffice = processOfficeName(record.fields['static Vanir Office'] || '');
+        const vanirOffice = record.fields['static Vanir Office'] || '';
         const jobName = record.fields['Job Name'] || '';
         const fieldTechnician = record.fields['static Field Technician'] || '';
         const fieldTechConfirmedComplete = record.fields['Field Tech Confirmed Job Complete'];

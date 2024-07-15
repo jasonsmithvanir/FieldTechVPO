@@ -73,6 +73,8 @@ th, td {
     border: 1px solid #ddd;
     text-align: center;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */
 }
 
 th {
@@ -82,7 +84,7 @@ th {
     top: 0;
     z-index: 1;
     font-size: 22px;
-    padding: 20px 10px; 
+    padding: 5px 5px; 
     font-weight: bold;
 }
 

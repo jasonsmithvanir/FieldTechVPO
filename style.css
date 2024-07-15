@@ -67,6 +67,11 @@ table {
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+td { max-width: 200px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */}
 
 th, td {
     padding: 10px;

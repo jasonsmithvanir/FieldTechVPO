@@ -173,7 +173,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         let updateArray = Object.keys(updates).map(id => ({
             id: id,
             fields: {
-                'Field Tech Confirmed Job Complete': updates[id]
+                'Field Tech Confirmed Job Complete': updates[id],
+                'Field Tech Confirmed Job Completed Date': new Date().toISOString()
             }
         }));
 

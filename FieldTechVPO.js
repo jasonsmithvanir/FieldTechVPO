@@ -22,7 +22,11 @@ document.addEventListener("DOMContentLoaded", async function () {
             });
 
             const data = await response.json();
-            records = records.concat(data.records);
+            records = records.concat(data.records.map(record => ({
+                id: record.id,
+                fields: record.fields,
+                descriptionOfWork: record.fields['Description of Work'] // Fetch 'Description of Work' field
+            })));
             offset = data.offset;
         } while (offset);
 
@@ -39,7 +43,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             do {
                 const response = await axios.get(`${airtableEndpoint}?filterByFormula=${encodeURIComponent(filterByFormula)}&offset=${offset}`);
-                records = records.concat(response.data.records);
+                records = records.concat(response.data.records.map(record => ({
+                    id: record.id,
+                    fields: record.fields,
+                    descriptionOfWork: record.fields['Description of Work'] // Fetch 'Description of Work' field
+                })));
                 offset = response.data.offset || '';
             } while (offset);
 
@@ -87,7 +95,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <tr>
                     <th>Vanir Office</th>
                     <th>Job Name</th>
-                    <th>Field Technician</th>
+                  <th>Description of Work</th> <!-- New column for Description of Work -->
+                   <th>Field Technician</th>
                     <th>Confirmed Complete</th>
                 </tr>
             </thead>
@@ -129,11 +138,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         const fieldTechnician = record.fields['static Field Technician'] || '';
         const fieldTechConfirmedComplete = record.fields['Field Tech Confirmed Job Complete'];
         const checkboxValue = fieldTechConfirmedComplete ? 'checked' : '';
+        const descriptionOfWork = record.descriptionOfWork || ''; // Fetched 'Description of Work' field
 
         recordRow.innerHTML = `
             <td>${vanirOffice}</td>
             <td>${jobName}</td>
-            <td>${fieldTechnician}</td>
+            <td>${descriptionOfWork}</td> <!-- Display 'Description of Work' -->
+             <td>${fieldTechnician}</td>
             <td>
                 <label class="custom-checkbox">
                     <input type="checkbox" ${checkboxValue} data-record-id="${record.id}" data-initial-checked="${checkboxValue}">

@@ -66,6 +66,7 @@ table {
     margin-top: 20px;
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  
 }
 td { max-width: 200px;
     text-align: center;
@@ -73,14 +74,23 @@ td { max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */}
 
-th, td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */
-}
+    th, td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */
+        max-width: 400px; /* Adjust the maximum width of the cells */
+    }
+    
+    .description-cell {
+        max-width: none; /* Remove max-width constraint for Description of Work and Job Name */
+        white-space: normal; /* Allow text to wrap within the cell */
+        overflow: auto; /* Enable scrollbars when content exceeds cell dimensions */
+        height: auto; /* Allow the cell height to expand based on content */
+    }
+    
 
 th {
     background-color: #24346c;

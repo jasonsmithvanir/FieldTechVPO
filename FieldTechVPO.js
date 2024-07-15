@@ -6,10 +6,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     const airtableTableName = 'tblO72Aw6qplOEAhR';
     const airtableEndpoint = `https://api.airtable.com/v0/${airtableBaseId}/${airtableTableName}`;
 
-    const googleDriveFolderId = 'completed-vpos'; // Replace with your Google Drive folder ID
-    const googleDriveAPIKey = 'AIzaSyAWxuN6BsTK7p3eBRI26yTJ9cnr2cI0tYw'; // Replace with your Google Drive API key
-    const googleDriveUploadURL = `vpo-579@completed-vpos.iam.gserviceaccount.com`;
-
     axios.defaults.headers.common['Authorization'] = `Bearer ${airtableApiKey}`;
 
     let allRecords = [];
@@ -26,11 +22,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             });
 
             const data = await response.json();
-            records = records.concat(data.records.map(record => ({
-                id: record.id,
-                fields: record.fields,
-                descriptionOfWork: record.fields['Description of Work'] // Fetch 'Description of Work' field
-            })));
+            records = records.concat(data.records);
             offset = data.offset;
         } while (offset);
 
@@ -47,11 +39,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             do {
                 const response = await axios.get(`${airtableEndpoint}?filterByFormula=${encodeURIComponent(filterByFormula)}&offset=${offset}`);
-                records = records.concat(response.data.records.map(record => ({
-                    id: record.id,
-                    fields: record.fields,
-                    descriptionOfWork: record.fields['Description of Work'] // Fetch 'Description of Work' field
-                })));
+                records = records.concat(response.data.records);
                 offset = response.data.offset || '';
             } while (offset);
 
@@ -100,10 +88,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                     <th>Vanir Office</th>
                     <th>Job Name</th>
                     <th>Field Technician</th>
-                       <th>Description of Work</th> <!-- New column for Description of Work -->
                     <th>Confirmed Complete</th>
-                    <th>Completed Photo(s)</th>
-                 
                 </tr>
             </thead>
             <tbody>
@@ -144,23 +129,17 @@ document.addEventListener("DOMContentLoaded", async function () {
         const fieldTechnician = record.fields['static Field Technician'] || '';
         const fieldTechConfirmedComplete = record.fields['Field Tech Confirmed Job Complete'];
         const checkboxValue = fieldTechConfirmedComplete ? 'checked' : '';
-        const descriptionOfWork = record.descriptionOfWork || ''; // Fetched 'Description of Work' field
 
         recordRow.innerHTML = `
             <td>${vanirOffice}</td>
             <td>${jobName}</td>
             <td>${fieldTechnician}</td>
-             <td>${descriptionOfWork}</td> <!-- Display 'Description of Work' -->
             <td>
                 <label class="custom-checkbox">
                     <input type="checkbox" ${checkboxValue} data-record-id="${record.id}" data-initial-checked="${checkboxValue}">
                     <span class="checkmark"></span>
                 </label>
             </td>
-            <td>
-                <input type="file" class="file-input" data-record-id="${record.id}" ${checkboxValue ? '' : 'disabled'}>
-            </td>
-           
         `;
 
         recordRow.querySelector('input[type="checkbox"]').addEventListener('change', handleCheckboxChange);
@@ -169,7 +148,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         return recordRow;
     }
 
-    async function handleCheckboxChange(event) {
+    function handleCheckboxChange(event) {
         const checkbox = event.target;
         const recordId = checkbox.getAttribute('data-record-id');
         const isChecked = checkbox.checked;
@@ -178,10 +157,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (isChecked) {
             updates[recordId] = true;
-            document.querySelector(`.file-input[data-record-id="${recordId}"]`).disabled = false;
         } else {
             delete updates[recordId];
-            document.querySelector(`.file-input[data-record-id="${recordId}"]`).disabled = true;
         }
 
         localStorage.setItem('updates', JSON.stringify(updates));
@@ -193,49 +170,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     async function submitUpdates() {
         console.log('Submitting updates...');
         let updates = JSON.parse(localStorage.getItem('updates')) || {};
-        let updateArray = [];
-
-        for (const id of Object.keys(updates)) {
-            const fileInput = document.querySelector(`.file-input[data-record-id="${id}"]`);
-            const file = fileInput.files[0];
-
-            if (file) {
-                const fileData = new FormData();
-                fileData.append('file', file);
-
-                try {
-                    const uploadResponse = await axios.post(`${googleDriveUploadURL}&supportsAllDrives=true&fields=id`, fileData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                            'Authorization': `Bearer ${googleDriveAPIKey}`
-                        }
-                    });
-
-                    const fileId = uploadResponse.data.id;
-                    console.log('File uploaded to Google Drive. File ID:', fileId);
-
-                    updateArray.push({
-                        id: id,
-                        fields: {
-                            'Field Tech Confirmed Job Complete': true,
-                            'Completed Photo(s)': [
-                                {
-                                    url: `https://drive.google.com/uc?id=${fileId}`
-                                }
-                            ]
-                        }
-                    });
-                } catch (error) {
-                    console.error('Error uploading file to Google Drive:', error);
-                    alert('Error uploading file to Google Drive. Check the console for details.');
-                    return;
-                }
-            } else {
-                console.error('No file selected for record ID:', id);
-                alert('No file selected for record ID: ' + id);
-                return;
+        let updateArray = Object.keys(updates).map(id => ({
+            id: id,
+            fields: {
+                'Field Tech Confirmed Job Complete': updates[id],
+                'Field Tech Confirmed Job Completed Date': new Date().toISOString()
             }
-        }
+        }));
 
         if (updateArray.length === 0) {
             console.log('No changes to submit.');

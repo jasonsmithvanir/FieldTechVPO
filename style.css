@@ -86,7 +86,7 @@ td { max-width: 150px;
     }
     
     .description-cell {
-        max-width: 200px; /* Remove max-width constraint for Description of Work and Job Name */
+        max-width: 300px; /* Remove max-width constraint for Description of Work and Job Name */
         white-space: normal; /* Allow text to wrap within the cell */
         overflow: auto; /* Enable scrollbars when content exceeds cell dimensions */
         height: auto; /* Allow the cell height to expand based on content */

@@ -3,29 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPO Awaiting Field Tech</title>
     <link rel="stylesheet" href="style.css">
-    <title>FieldTechVPO</title>
 </head>
 <body>
-    <h1>FieldTech VPO</h1>
-    <button id="jumpToBottom">Jump to Bottom</button>
-    <table>
-        <thead>
-            <tr>
-                <th>Job Name</th>
-                <th>Field Technician</th>
-                <th>Subcontractor</th>
-                <th>FVanir Office</th>
-                <th>Field Tech Confirmed Job Complete</th>
-            </tr>
-        </thead>
-        <tbody id="records">
-            <!-- Records will be inserted here by JavaScript -->
-        </tbody>
-    </table>
-    <button id="submitUpdates">Submit Updates</button>
-    <script src="FieldTechVPO.js"></script>
+    <h2 id="searchBarTitle" class="hidden">Open VPOs Awaiting Field Tech</h2>
+    <div class="search-container">
+        <input type="text" id="searchBar" class="hidden" placeholder="Search...">
+        <button id="searchButton" class="hidden">Search</button>
+    </div>
+    <div id="loadingMessage">Open VPOs are being loaded...</div>
+    <div class="table-container">
+        <table id="records">
+            <!-- Table rows will be inserted here by JavaScript -->
+        </table>
+    </div>
+    <div class="button-container">
+        <button id="submitUpdates" class="sticky-button">Submit</button>
+        <button id="undoButton" class="sticky-button">Undo</button>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
+    <script src="FieldTechVPO.js"></script>
 </body>
 </html>

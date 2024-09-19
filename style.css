@@ -1,3 +1,4 @@
+/* General styling */
 body {
     font-family: Arial, sans-serif;
     background-color: #d0d2d6;
@@ -60,47 +61,49 @@ button:hover {
     transform: translateY(-2px);
 }
 
+/* Table styling */
+.table-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    overflow-x: auto; /* Allows horizontal scrolling */
+}
+
 table {
     border-collapse: collapse;
-    width: auto;
+    width: 85%;
     margin-top: 20px;
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 90%;
-  
+    min-width: 600px; /* Ensures table doesn't shrink too much */
+    overflow-x: auto; /* Ensures table scrolls horizontally if too wide */
 }
-td { max-width: 150px;
+
+td, th {
+    padding: 10px;
+    border: 1px solid #ddd;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */}
+    text-overflow: ellipsis;
+    max-width: 300px;
+}
 
-    th, td {
-        padding: 10px;
-        border: 1px solid #ddd;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */
-        max-width: 300px; /* Adjust the maximum width of the cells */
-    }
-    
-    .description-cell {
-        max-width: 400px; /* Remove max-width constraint for Description of Work and Job Name */
-        white-space: normal; /* Allow text to wrap within the cell */
-        overflow: auto; /* Enable scrollbars when content exceeds cell dimensions */
-        height: auto; /* Allow the cell height to expand based on content */
-    }
-    
+.description-cell {
+    max-width: 400px;
+    white-space: normal;
+    overflow: auto;
+}
 
 th {
     background-color: #24346c;
     color: #fff;
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 2;
     font-size: 22px;
-    padding: 5px 5px; 
+    padding: 5px;
     font-weight: bold;
 }
 
@@ -112,117 +115,52 @@ tr:nth-child(odd) {
     background-color: #ffffff;
 }
 
-.custom-checkbox {
-    position: relative;
-    display: inline-block;
-    width: 24px;
-    height: 24px;
+/* Mobile specific styling */
+@media only screen and (max-width: 768px) {
+    table {
+        font-size: 14px; /* Adjust font size for mobile */
+    }
+
+    td, th {
+        padding: 8px;
+    }
+
+    .sticky-button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    input[type="text"] {
+        width: 150px; /* Adjust search bar for mobile */
+    }
 }
 
-.custom-checkbox input[type="checkbox"] {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
+/* Optimize for landscape mode */
+@media only screen and (max-width: 1024px) and (orientation: landscape) {
+    body {
+        justify-content: flex-start;
+    }
 
-.custom-checkbox .checkmark {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 24px;
-    width: 24px;
-    background-color: #ccc;
-    border-radius: 4px;
-    transition: all 0.3s ease-in-out;
-}
+    h2 {
+        font-size: 20px;
+    }
 
-.custom-checkbox input[type="checkbox"]:checked + .checkmark {
-    background-color: #b42025;
-}
+    .search-container {
+        width: 90%; /* Increase width in landscape for better spacing */
+    }
 
-.custom-checkbox .checkmark:after {
-    content: "";
-    position: absolute;
-    display: none;
-}
+    table {
+        width: 100%; /* Allow table to take full width of the screen */
+        min-width: 500px; /* Slightly reduce minimum width in landscape */
+    }
 
-.custom-checkbox input[type="checkbox"]:checked + .checkmark:after {
-    display: block;
-}
+    td, th {
+        padding: 6px; /* Reduce padding to fit more content on the screen */
+        font-size: 12px; /* Smaller font size for better content fit */
+    }
 
-.custom-checkbox .checkmark:after {
-    left: 8px;
-    top: 4px;
-    width: 6px;
-    height: 12px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
-
-.sticky-button {
-    position: fixed;
-    bottom: 10px;
-    left: 50%;
-    padding: 10px 20px;
-    background-color: #007bff; /* Button color */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-}
-
-.sticky-button:hover {
-    background-color: #0056b3;
-}
-
-#loadingMessage {
-    display: none;
-    font-size: 16px;
-    margin-top: 20px;
-}
-
-.hidden {
-    display: none;
-}
-
-.table-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* Add to the existing CSS file */
-.sticky-button {
-    position: fixed;
-    bottom: 10px;
-    left: 50%;
-    padding: 10px 20px;
-    background-color: #24346c;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-}
-
-.sticky-button:hover {
-    background-color: #b42025;
-}
-
-.hidden {
-    display: none;
-}
-
-#loadingMessage {
-    display: none;
-    font-size: 16px;
-    margin-top: 20px;
-}
-
-.table-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    .sticky-button {
+        padding: 6px 12px; /* Smaller button for landscape */
+        font-size: 12px;
+    }
 }

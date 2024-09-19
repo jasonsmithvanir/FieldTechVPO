@@ -93,9 +93,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         const tableHeader = `
             <thead>
                 <tr>
-                    <th>Vanir Office</th>
+                    <th>Branch</th>
                     <th>Job Name</th>
-                  <th>Description of Work</th> <!-- New column for Description of Work -->
+                  <th>Description of Work</th> 
                    <th>Field Technician</th>
                     <th>Confirmed Complete</th>
                 </tr>

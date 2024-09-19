@@ -10,6 +10,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let allRecords = [];
 
+    // Create a div for the validation message
+    const validationMessageDiv = document.createElement('div');
+    validationMessageDiv.id = 'validationMessage';
+    validationMessageDiv.style.display = 'none'; // Hide initially
+    validationMessageDiv.style.color = 'red'; // Set color to red for error message
+    document.body.appendChild(validationMessageDiv); // Append to the body
+
     async function fetchAllRecords() {
         let records = [];
         let offset = null;
@@ -65,7 +72,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.getElementById('loadingMessage').innerText = 'Open VPOs are being loaded...';
         document.getElementById('loadingMessage').style.display = 'block';
         document.getElementById('searchButton').classList.add('hidden');
-        document.getElementById('submitUpdates').classList.add('hidden');
         document.getElementById('searchBar').classList.add('hidden');
         document.getElementById('searchBarTitle').classList.add('hidden');
     }
@@ -73,7 +79,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     function hideLoadingMessage() {
         document.getElementById('loadingMessage').style.display = 'none';
         document.getElementById('searchButton').classList.remove('hidden');
-        document.getElementById('submitUpdates').classList.remove('hidden');
         document.getElementById('searchBar').classList.remove('hidden');
         document.getElementById('searchBarTitle').classList.remove('hidden');
     }
@@ -95,8 +100,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <tr>
                     <th>Branch</th>
                     <th>Job Name</th>
-                  <th>Description of Work</th> 
-                   <th>Field Technician</th>
+                    <th>Description of Work</th>
+                    <th>Field Technician</th>
                     <th>Confirmed Complete</th>
                 </tr>
             </thead>
@@ -138,13 +143,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         const fieldTechnician = record.fields['static Field Technician'] || '';
         const fieldTechConfirmedComplete = record.fields['Field Tech Confirmed Job Complete'];
         const checkboxValue = fieldTechConfirmedComplete ? 'checked' : '';
-        const descriptionOfWork = record.descriptionOfWork || ''; // Fetched 'Description of Work' field
+        const descriptionOfWork = record.descriptionOfWork || '';
 
         recordRow.innerHTML = `
             <td>${vanirOffice}</td>
             <td>${jobName}</td>
-            <td>${descriptionOfWork}</td> <!-- Display 'Description of Work' -->
-             <td>${fieldTechnician}</td>
+            <td>${descriptionOfWork}</td>
+            <td>${fieldTechnician}</td>
             <td>
                 <label class="custom-checkbox">
                     <input type="checkbox" ${checkboxValue} data-record-id="${record.id}" data-initial-checked="${checkboxValue}">
@@ -153,118 +158,66 @@ document.addEventListener("DOMContentLoaded", async function () {
             </td>
         `;
 
-        recordRow.querySelector('input[type="checkbox"]').addEventListener('change', handleCheckboxChange);
+        const checkbox = recordRow.querySelector('input[type="checkbox"]');
 
-        console.log(`Created row for record ID ${record.id}:`, record);
+        // Add event listener for click instead of blur
+        checkbox.addEventListener('click', handleCheckboxClick);
+
         return recordRow;
     }
 
-    function handleCheckboxChange(event) {
+    function handleCheckboxClick(event) {
         const checkbox = event.target;
         const recordId = checkbox.getAttribute('data-record-id');
         const isChecked = checkbox.checked;
 
         let updates = JSON.parse(localStorage.getItem('updates')) || {};
 
-        if (isChecked) {
-            updates[recordId] = true;
+        // Validation: Only submit if there is a change
+        const initialChecked = checkbox.getAttribute('data-initial-checked') === 'checked';
+
+        if (initialChecked !== isChecked) {
+            const confirmation = window.confirm("Are you sure you want to mark this as complete?");
+            if (confirmation) {
+                updates[recordId] = isChecked;
+                localStorage.setItem('updates', JSON.stringify(updates));
+                submitUpdate(recordId, isChecked);
+                validationMessageDiv.style.display = 'none'; // Hide validation message if confirmed
+            } else {
+                // If user clicks "No", revert the checkbox to its initial state
+                checkbox.checked = initialChecked;
+                validationMessageDiv.innerText = "Action canceled.";
+                validationMessageDiv.style.display = 'block'; // Show validation message
+            }
         } else {
-            delete updates[recordId];
+            validationMessageDiv.innerText = "No changes detected.";
+            validationMessageDiv.style.display = 'block'; // Show validation message if no change is detected
         }
-
-        localStorage.setItem('updates', JSON.stringify(updates));
-
-        console.log(`Checkbox changed for record ID ${recordId}: ${isChecked}`);
-        console.log('Current updates:', updates);
     }
 
-    async function submitUpdates() {
-        console.log('Submitting updates...');
-        let updates = JSON.parse(localStorage.getItem('updates')) || {};
-        let updateArray = Object.keys(updates).map(id => ({
-            id: id,
-            fields: {
-                'Field Tech Confirmed Job Complete': updates[id],
-                'Field Tech Confirmed Job Completed Date': new Date().toISOString()
-            }
-        }));
-
-        if (updateArray.length === 0) {
-            console.log('No changes to submit.');
-            alert('No changes to submit.');
-            return;
-        }
-
-        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-        async function patchWithRetry(url, data, retries = 5) {
-            let attempt = 0;
-            let success = false;
-            let response = null;
-
-            while (attempt < retries && !success) {
-                try {
-                    response = await axios.patch(url, data);
-                    success = true;
-                } catch (error) {
-                    if (error.response && error.response.status === 429) {
-                        attempt++;
-                        const waitTime = Math.pow(2, attempt) * 1000;
-                        console.log(`Rate limit exceeded. Retrying in ${waitTime / 1000} seconds...`);
-                        await delay(waitTime);
-                    } else {
-                        throw error;
-                    }
-                }
-            }
-
-            if (!success) {
-                throw new Error('Max retries reached. Failed to patch data.');
-            }
-
-            return response;
-        }
-
+    async function submitUpdate(recordId, isChecked) {
+        console.log(`Submitting update for record ID ${recordId}...`);
+    
         try {
-            const updatePromises = updateArray.map(update =>
-                patchWithRetry(`${airtableEndpoint}/${update.id}`, {
-                    fields: update.fields
-                })
-            );
-
-            showLoadingMessage();
-            console.log('Submitting updates to Airtable...', updatePromises);
-            await Promise.all(updatePromises);
-            console.log('Records updated successfully');
-            alert('Records updated successfully.');
-
-            localStorage.removeItem('updates');
-            document.getElementById('loadingMessage').innerText = 'Values have been submitted. Repopulating table...';
-            await fetchUncheckedRecords();
+            await axios.patch(`${airtableEndpoint}/${recordId}`, {
+                fields: {
+                    'Field Tech Confirmed Job Complete': isChecked,
+                    'Field Tech Confirmed Job Completed Date': new Date().toISOString()
+                }
+            });
+    
+            console.log(`Record ID ${recordId} updated successfully.`);
+            alert(`Record ID ${recordId} updated successfully.`);
+    
+            // Refresh the page after successful submission
+            location.reload();
+            
         } catch (error) {
-            console.error('Error updating records:', error);
-            alert('Error updating records. Check the console for more details.');
-        } finally {
-            hideLoadingMessage();
+            console.error('Error updating record:', error);
+            alert(`Error updating record ID ${recordId}. Please try again.`);
         }
     }
-
-    function filterRecords() {
-        const searchTerm = document.getElementById('searchBar').value.toLowerCase();
-        const filteredRecords = allRecords.filter(record => {
-            const vanirOffice = (record.fields['static Vanir Office'] || '').toLowerCase();
-            const jobName = (record.fields['Job Name'] || '').toLowerCase();
-            const fieldTechnician = (record.fields['static Field Technician'] || '').toLowerCase();
-            return vanirOffice.includes(searchTerm) || jobName.includes(searchTerm) || fieldTechnician.includes(searchTerm);
-        });
-        displayRecords(filteredRecords);
-    }
-
-    function jumpToBottom() {
-        console.log('Jumping to bottom...');
-        const recordsContainer = document.getElementById('records');
-        recordsContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }
+    
 
     fetchAllRecords()
         .then(records => {
@@ -276,7 +229,4 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
 
     fetchUncheckedRecords();
-
-    document.getElementById('submitUpdates').addEventListener('click', submitUpdates);
-    document.getElementById('searchButton').addEventListener('click', filterRecords);
 });

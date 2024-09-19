@@ -12,11 +12,14 @@
         <input type="text" id="searchBar" class="hidden" placeholder="Search...">
         <button id="searchButton" class="hidden">Search</button>
     </div>
-    <div id="loadingMessage">Open VPOs are being loaded...</div>
-    <table id="records">
-        <!-- Table rows will be inserted here by JavaScript -->
-    </table>
-    <button id="submitUpdates" class="sticky-button hidden">Submit Updates</button>
+    <div id="loadingMessage"></div>
+    
+    <!-- Table is wrapped in a scrollable div -->
+    <div class="table-container">
+        <table id="records">
+            <!-- Table rows will be inserted here by JavaScript -->
+        </table>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="FieldTechVPO.js"></script>

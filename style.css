@@ -33,6 +33,44 @@ body {
     text-decoration: underline;
 }
 
+/* Loading Bar Container styled for column layout */
+#loadingBarContainer {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column; /* Stack elements in a column */
+    align-items: center; /* Center elements horizontally */
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Background and loading bar styling */
+#loadingBarBackground {
+    width: 80%;
+    height: 20px;
+    border-radius: 5px;
+    margin-bottom: 5px; /* Adds space between the bar and percentage text */
+    overflow: hidden;
+}
+
+#loadingBar {
+    height: 0%; 
+    width: 0%; 
+    background-color: #007bff;
+    transition: width 0.3s ease;
+}
+
+/* Loading percentage text styling */
+#loadingPercentage {
+    font-size: 26px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 5px; /* Space between loading bar and percentage */
+}
+
 
 
 

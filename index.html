@@ -5,56 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>VPO Awaiting Field Tech</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Loading Bar Container Styles */
-        #loadingBarContainer {
-            display: none; /* Initially hidden */
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            text-align: center;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
-
-        #loadingBarBackground {
-            width: 100%; 
-            height: 20px; 
-            border-radius: 5px; 
-            background-color: #ddd;
-            overflow: hidden;
-        }
-
-        #loadingBar {
-            height: 100%; 
-            width: 0%; 
-            background-color: #007bff;
-            transition: width 0.3s ease;
-        }
-
-        #loadingPercentage {
-            margin-top: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-        }
-    </style>
+  
 </head>
 <body>
     <h3 id="searchBarTitle" class="hidden underline">Open VPOs Awaiting Field Tech</h3>
 
-    <!-- Loading Bar Container with Progress Display -->
-    <div id="loadingBarContainer" >
-        <div id="loadingBarBackground" style="width: 80%; height: 20px; border-radius: 5px;">
-            <div id="loadingBar"></div>
-        </div>
-        <span id="loadingPercentage">0%</span>
+<!-- Loading Bar Container with Progress Display -->
+<div id="loadingBarContainer">
+    <div id="loadingBarBackground">
+        <div id="loadingBar"></div>
     </div>
+    <span id="loadingPercentage">0%</span> <!-- This will appear underneath -->
+</div>
+
+
 
 
     <!-- Search Bar -->

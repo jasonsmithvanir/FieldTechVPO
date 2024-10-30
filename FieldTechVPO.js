@@ -163,7 +163,7 @@ console.log(`Updating loading status: ${loadingStatus.innerText}`);
         const fieldTechnician = record.fields['static Field Technician'] || '';
         const fieldTechConfirmedComplete = record.fields['Field Tech Confirmed Job Complete'];
         const checkboxValue = fieldTechConfirmedComplete ? 'checked' : '';
-        const descriptionOfWork = record.descriptionOfWork || '';
+        const descriptionOfWork = record.fields['Description of Work'] || '';
     
         recordRow.innerHTML = `
             <td>${IDNumber}</td>

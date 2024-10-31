@@ -106,7 +106,7 @@ function updateLoadingBar(current, total) {
     const loadingStatus = document.getElementById('loadingPercentage');
 
     // Update the text to show "Loading X out of Y"
-    loadingStatus.innerText = `Loading ${current} out of ${total}`;
+    loadingStatus.innerText = `Loading ${current} / ${total}`;
 
     console.log(`Loading status updated: Loading ${current} out of ${total}.`);
 

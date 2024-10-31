@@ -552,8 +552,7 @@ async function fetchRecordsForTech(fieldTech) {
         const fieldTechnician = record.fields['static Field Technician'] || '';
         const fieldTechConfirmedComplete = record.fields['Field Tech Confirmed Job Complete'];
         const checkboxValue = fieldTechConfirmedComplete ? 'checked' : '';
-        const descriptionOfWork = record.descriptionOfWork || '';
-
+        const descriptionOfWork = record.fields['Description of Work'];
         recordRow.innerHTML = `
             <td>${IDNumber}</td>
             <td>${vanirOffice}</td>

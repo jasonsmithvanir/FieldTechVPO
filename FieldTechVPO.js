@@ -106,7 +106,7 @@ function updateLoadingBar(current, total) {
     const loadingStatus = document.getElementById('loadingPercentage');
 
     // Update the text to show "Loading X out of Y"
-    loadingStatus.innerText = `Loading ${current} / ${total}`;
+    loadingStatus.innerText = `Loading ${current} out of ${total}`;
 
     console.log(`Loading status updated: Loading ${current} out of ${total}.`);
 
@@ -270,7 +270,7 @@ function showLoadingBar() {
     const loadingBar = document.getElementById('loadingBar');
     loadingBar.style.width = '0%'; // Reset the loading bar width
     const loadingStatus = document.getElementById('loadingPercentage');
-    loadingStatus.innerText = 'Loading...'; // Reset the text
+    loadingStatus.innerText = 'Loading 0 out of 0'; // Reset the text
     console.log("Loading bar shown with initial text.");
 }
 
@@ -552,7 +552,7 @@ async function fetchRecordsForTech(fieldTech) {
         const fieldTechnician = record.fields['static Field Technician'] || '';
         const fieldTechConfirmedComplete = record.fields['Field Tech Confirmed Job Complete'];
         const checkboxValue = fieldTechConfirmedComplete ? 'checked' : '';
-        const descriptionOfWork = record.fields['Description of Work'] || '';
+        const descriptionOfWork = record.descriptionOfWork || '';
 
         recordRow.innerHTML = `
             <td>${IDNumber}</td>

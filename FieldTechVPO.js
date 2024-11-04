@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     const displayNameElement = document.getElementById('displayName');
     const techDropdown = document.getElementById('techDropdown'); // Get the dropdown element
     const searchBar = document.getElementById('searchBar'); // Reference to the search bar
-    const loadingBar = document.getElementById('loadingBar'); // Reference to the loading bar element
     const airtableApiKey = 'pata9Iv7DANqtJrgO.b308b33cd0f323601f3fb580aac0d333ca1629dd26c5ebe2e2b9f18143ccaa8e';
     const airtableBaseId = 'appQDdkj6ydqUaUkE';
     const airtableTableName = 'tblO72Aw6qplOEAhR';
@@ -17,8 +16,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     let technicianRecords = []; // Store records fetched for the logged-in technician
     let isLoading = true; // Variable to track whether the page is still loading
 
-    // Disable the dropdown initially while loading
-    techDropdown.disabled = true;
     const cacheTime = 24 * 60 * 60 * 1000; // 1 day in milliseconds
     const lastFetch = localStorage.getItem('lastTechFetchTime');
     const currentTime = new Date().getTime();
@@ -225,35 +222,41 @@ document.addEventListener("DOMContentLoaded", async function () {
 });
 
 
-    // Fetch unique technician names with at least one incomplete record from Airtable
-    async function fetchTechniciansWithRecords() {
-        try {
-            let techniciansWithRecords = new Set(); // Use a Set to ensure uniqueness
-            let offset = '';
+async function fetchTechniciansWithRecords() {
+    let techniciansWithRecords = new Set();
+    let offset = '';
+    techDropdown.innerHTML = `<option value="">Select a Technician</option><option value="all">Display All</option>`; // Initial state
 
-            // Fetch all records
-            do {
-                const response = await axios.get(`${airtableEndpoint}?offset=${offset}`);
-                const records = response.data.records;
+    try {
+        // Fetch and progressively populate dropdown with each batch
+        do {
+            const response = await axios.get(`${airtableEndpoint}?offset=${offset}`);
+            const records = response.data.records;
 
-                // Process each record and add the technician name if they have a record
-                records.forEach(record => {
-                    const techName = record.fields['static Field Technician'];
-                    const isJobComplete = record.fields['Field Tech Confirmed Job Complete'];
-                    if (techName && !isJobComplete) {  // Only include technicians with incomplete jobs
-                        techniciansWithRecords.add(techName); // Add technician name to the Set
-                    }
-                });
+            records.forEach(record => {
+                const techName = record.fields['static Field Technician'];
+                const isJobComplete = record.fields['Field Tech Confirmed Job Complete'];
+                if (techName && !isJobComplete && !techniciansWithRecords.has(techName)) {
+                    techniciansWithRecords.add(techName);
+                    const option = document.createElement('option');
+                    option.value = techName;
+                    option.innerText = techName;
+                    techDropdown.appendChild(option); // Add each new technician to the dropdown
+                }
+            });
 
-                offset = response.data.offset || ''; // Move to the next page of results
-            } while (offset);
+            techDropdown.disabled = false; // Enable dropdown after the first batch
+            offset = response.data.offset || ''; // Move to next page if available
+        } while (offset);
 
-            return Array.from(techniciansWithRecords).sort(); // Convert the Set to an Array and sort alphabetically
-        } catch (error) {
-            console.error('Error fetching technicians:', error);
-            return [];
-        }
+        // Convert Set to Array, sort, and return for cache storage
+        return Array.from(techniciansWithRecords).sort();
+
+    } catch (error) {
+        console.error('Error fetching technicians:', error);
+        return [];
     }
+}
       // Function to hide search bar if less than 6 records
       function toggleSearchBarVisibility(records) {
         if (records.length < 6) {
@@ -290,34 +293,22 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
     async function populateDropdown() {
-        showLoadingBar();  // Show loading bar when dropdown starts populating
-        
-        const cachedTechnicians = JSON.parse(localStorage.getItem('technicians'));
+        showLoadingBar();  // Show loading bar while dropdown is populating
     
-        // If cached technicians exist, load them into the dropdown first
+        // Try to load cached technicians if available
+        const cachedTechnicians = JSON.parse(localStorage.getItem('technicians'));
         if (cachedTechnicians && cachedTechnicians.length > 0) {
             populateDropdownFromCache(cachedTechnicians);
+            techDropdown.disabled = false;  // Enable dropdown immediately if we have cached data
             console.log('Dropdown populated from cache');
         }
     
-        // Check cache expiration or if no cache is available
+        // Fetch fresh technician names if cache is missing or expired
         if (!cachedTechnicians || !lastFetch || currentTime - lastFetch > cacheTime) {
-            // Immediately fetch fresh technician names from Airtable if the cache is empty or expired
-            const technicians = await fetchTechniciansWithRecords();
-            localStorage.setItem('technicians', JSON.stringify(technicians));
+            techDropdown.disabled = true; // Temporarily disable while fetching
+            const fetchedTechnicians = await fetchTechniciansWithRecords();
+            localStorage.setItem('technicians', JSON.stringify(fetchedTechnicians));
             localStorage.setItem('lastTechFetchTime', currentTime.toString());
-    
-            // Update dropdown after fetching new data
-            populateDropdownFromCache(technicians);
-            console.log('Dropdown updated with fresh data');
-        }
-    
-        // Automatically trigger the record fetching for the default selection
-        const storedTech = localStorage.getItem('fieldTech');
-        if (storedTech === "all" || !storedTech) {
-            fetchAllIncompleteRecords(); // Fetch all records if "all" or no tech is selected
-        } else {
-            fetchRecordsForTech(storedTech); // Fetch records for the stored technician
         }
     
         hideLoadingBar(); // Hide loading bar once dropdown is populated
@@ -345,17 +336,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
     
-    // Call populateDropdown immediately when DOM is ready
-    document.addEventListener("DOMContentLoaded", async function () {
-        console.log("DOM fully loaded, populating dropdown...");
-        await populateDropdown();
-    });
-
-        // Call populateDropdown immediately when DOM is ready
-        document.addEventListener("DOMContentLoaded", async function () {
-            console.log("DOM fully loaded, populating dropdown...");
-            await populateDropdown();  // Populate the dropdown and show loading bar until done
-        });
+// Call populateDropdown immediately when DOM is ready
+document.addEventListener("DOMContentLoaded", async function () {
+    console.log("DOM fully loaded, populating dropdown...");
+    await populateDropdown(); // Populate the dropdown and show loading bar until done
+});
     
     // Define the fetchAllIncompleteRecords function
     async function fetchAllIncompleteRecords() {

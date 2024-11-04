@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             const loadingBarContainer = document.getElementById('loadingBarContainer');
             loadingBarContainer.style.display = 'block'; // Show the loading bar
             console.log("Loading bar displayed after 3 seconds");
-        }, 3000); // Delay for 3 seconds
+        }, 5000); // Delay for 3 seconds
     }
 
     // Function to handle search input and filter table rows
@@ -263,24 +263,30 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-// Function to show the loading bar and reset the status
-function showLoadingBar() {
-    const loadingBarContainer = document.getElementById('loadingBarContainer');
-    loadingBarContainer.style.display = 'block'; // Show the loading bar container
-    const loadingBar = document.getElementById('loadingBar');
-    loadingBar.style.width = '0%'; // Reset the loading bar width
-    const loadingStatus = document.getElementById('loadingPercentage');
-    loadingStatus.innerText = 'Loading 0 out of 0'; // Reset the text
-    console.log("Loading bar shown with initial text.");
-}
-
-// Function to hide the loading bar
-function hideLoadingBar() {
-    const loadingBarContainer = document.getElementById('loadingBarContainer');
-    loadingBarContainer.style.display = 'none'; // Hide the loading bar container
-    console.log("Loading bar hidden.");
-}
-
+    function showLoadingBar() {
+        const loadingBarContainer = document.getElementById('loadingBarContainer');
+        loadingBarContainer.style.display = 'block'; // Show the loading bar container
+        const loadingBar = document.getElementById('loadingBar');
+        loadingBar.style.width = '0%'; // Reset the loading bar width
+    
+        // Start animation on the loading bar and loading text
+        loadingBar.classList.add('loading-animation');
+        const loadingStatus = document.getElementById('loadingPercentage');
+        loadingStatus.innerText = 'Loading...'; // Set initial loading text
+        loadingStatus.classList.add('pulse'); // Add pulse animation to text
+        console.log("Loading bar shown with initial text.");
+    }
+    
+    function hideLoadingBar() {
+        const loadingBarContainer = document.getElementById('loadingBarContainer');
+        loadingBarContainer.style.display = 'none'; // Hide the loading bar container
+        const loadingBar = document.getElementById('loadingBar');
+        loadingBar.classList.remove('loading-animation'); // Remove animation class
+        const loadingStatus = document.getElementById('loadingPercentage');
+        loadingStatus.classList.remove('pulse'); // Remove pulse animation from text
+        console.log("Loading bar hidden.");
+    }
+    
 
 
     async function populateDropdown() {

@@ -35,24 +35,52 @@ body {
 
 
 #loadingBarContainer {
-    position: fixed; /* Fixed position ensures it stays in the center when scrolling */
-    top: 50%; /* Align vertically center */
-    left: 50%; /* Align horizontally center */
-    transform: translate(-50%, -50%); /* Adjust position to truly center the element */
-    width: 300px; /* Set a fixed width for the loading bar container */
-    text-align: center; /* Center text inside the container */
-    background-color: transparent; /* Make the background transparent */
-    padding: 20px; /* Optional: Padding around the loading bar */
-    border-radius: 8px; /* Optional: Rounds the corners of the container */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Optional: Adds a subtle shadow */
-    z-index: 1000; /* Ensure it stays on top of other content */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    padding: 20px;
+    font-family: monospace; /* Monospaced font for even bar width */
+    font-size: 18px;
+    color: #333;
+    z-index: 1000;
 }
 
+
 #loadingBar {
-    width: 0%; /* Start at 0% and will grow as percentage updates */
+    width: 0%; /* Start at 0% */
     height: 20px;
-    background-color: #007bff; /* Blue color for the loading bar */
-    border-radius: 4px; /* Optional: Rounded corners for the loading bar */
+    background-color: #007bff;
+    border-radius: 4px;
+    animation: loadingBarAnimation 2s infinite ease-in-out; /* Loop animation */
+}
+
+/* Loading bar animation */
+@keyframes loadingBarAnimation {
+    0% {
+        width: 0%;
+    }
+    50% {
+        width: 100%;
+    }
+    100% {
+        width: 0%;
+    }
+}
+
+/* Pulse animation for loading text */
+.pulse {
+    animation: pulseAnimation 1.5s infinite;
+}
+
+@keyframes pulseAnimation {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
 }
 
 #loadingPercentage {

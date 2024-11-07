@@ -2,24 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>VPO Awaiting Field Tech</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h2 id="searchBarTitle" class="hidden">Open VPOs Awaiting Field Tech</h2>
-    <div>
-        <input type="text" id="searchBar" class="hidden" placeholder="Search...">
-        <button id="searchButton" class="hidden">Search</button>
+    <br>
+    <div id="loadingBarContainer" style="display:none;">
+        <div id="loadingBar" style="width: 100%; height: 20px;"></div>
+        <span id="loadingPercentage"></span>
     </div>
-    <div id="loadingMessage"></div>
+    
+    <div id="spinner" class="spinner" style="display:none;"></div>
+
+    <h3 id="searchBarTitle" class="hidden underline">Open VPOs Awaiting Field Tech</h3>
+    <div>
+        <input type="text" id="searchBar" class="hidden"  placeholder="Search">
+
+        <button id="searchButton" style="display: none;">Search</button>
+    </div>
+    <p id="displayName" style="display: none;"></p>
+    <select id="techDropdown">
+        <option value="all">Display All</option>
+    </select>
+    
+    
+    
+
     
     <!-- Table is wrapped in a scrollable div -->
     <div class="table-container">
-        <table id="records">
-            <!-- Table rows will be inserted here by JavaScript -->
-        </table>
+        <div class="table-wrapper">
+            <table id="records">
+                <tbody>
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
     </div>
+    
+
+    <div class="modal-overlay" id="modalOverlay"></div>
+
+    <div id="modal">
+        <p>Are you sure you want to confirm the job is complete?</p>
+        <button id="yesButton">Yes</button>
+        <button id="noButton">No</button>
+    </div>
+    
+    
+      
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="FieldTechVPO.js"></script>

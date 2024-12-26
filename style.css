@@ -5,6 +5,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center; /* Center contents horizontally */
+    cursor: url('favicon3.ico'), auto; /* Replace with your icon file path */
 
     height: 100vh; /* Full viewport height */
     margin: 0;

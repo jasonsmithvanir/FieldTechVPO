@@ -91,9 +91,7 @@ searchBar.addEventListener('input', filterTable);
 
             // Function to display a message when user interacts with the dropdown during loading
     function showLoadingMessage() {
-        if (isLoading) {
-            alert("The page is still loading. Please wait until the data is fully loaded.");
-        }
+       
     }
        // Add a listener to prevent dropdown interaction during loading
        techDropdown.addEventListener('click', showLoadingMessage);

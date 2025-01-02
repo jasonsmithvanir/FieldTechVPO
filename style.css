@@ -129,10 +129,10 @@ th, td {
     border: 1px solid #ddd;
     text-align: center;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-x: scroll;
     max-width: 200px;
 }
+
 
 th {
     background-color: #24346c;
@@ -382,7 +382,6 @@ button:hover {
     display: inline-block;
     width: 30px;
     height: 30px;
-    background-color: #f0f0f0; /* Change this to your preferred background color */
     border-radius: 5px; /* Optional: Adds rounded corners */
     cursor: pointer; /* Adds a pointer cursor */
 }

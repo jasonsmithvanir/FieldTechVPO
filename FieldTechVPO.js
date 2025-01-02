@@ -78,7 +78,7 @@ searchBar.addEventListener('input', filterTable);
         
         // Check if loading finished in less than 3 seconds
         const elapsedTime = Date.now() - loadingStartTime;
-        if (elapsedTime < 3000) {
+        if (elapsedTime < 3500) {
             console.log("Loading completed in less than 3 seconds, not showing the loading bar.");
             clearTimeout(loadingBarTimeout); // Cancel showing the loading bar if loading finishes quickly
         } else {
